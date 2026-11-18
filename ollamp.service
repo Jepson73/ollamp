@@ -1,0 +1,23 @@
+[Unit]
+Description=Ollamp - Winamp-style status page for Ollama and NVIDIA GPUs
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+# Add --instance NAME=PORT for each Ollama instance if you run more than one
+ExecStart=/usr/bin/python3 /opt/ollamp/ollamp.py --bind 0.0.0.0 --port 8088
+Restart=on-failure
+RestartSec=5
+# Temporary unprivileged user; it only reads nvidia-smi, /proc and Ollama's API
+DynamicUser=yes
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+ProtectKernelTunables=yes
+ProtectControlGroups=yes
+RestrictSUIDSGID=yes
+LockPersonality=yes
+
+[Install]
+WantedBy=multi-user.target

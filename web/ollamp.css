@@ -1,0 +1,203 @@
+/* Ollamp – classic Winamp look. All colors are the variables below. */
+:root {
+  --desktop: #008080;
+  --desktop-2: #006a6a;
+  --frame: #2b2b3d;
+  --frame-light: #5e5e7a;
+  --frame-dark: #0e0e16;
+  --title-a: #d9b44a;
+  --title-b: #5c4a17;
+  --title-text: #e8e8f0;
+  --lcd-bg: #000000;
+  --lcd-fg: #00e800;
+  --lcd-dim: #0b3b10;
+  --vis-low: #19c31b;
+  --vis-mid: #d6d61b;
+  --vis-high: #e8371b;
+  --peak: #c0c0d0;
+  --button: #3d3d55;
+  --button-text: #d0d0e0;
+  --list-bg: #000000;
+  --list-fg: #00ff00;
+  --list-dim: #3a8a3a;
+  --list-sel-bg: #0000c6;
+  --list-sel-fg: #ffffff;
+  --lamp-on: #00ff00;
+  --lamp-off: #1e3a1e;
+}
+* { box-sizing: border-box; }
+html { color-scheme: dark; }
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--desktop);
+  background-image: linear-gradient(160deg, var(--desktop), var(--desktop-2));
+  font: 11px/1.25 "DejaVu Sans Mono", "Lucida Console", ui-monospace, monospace;
+  color: var(--button-text);
+  padding: 24px 16px;
+}
+.stack { max-width: 560px; margin: 0 auto; }
+
+/* Windows */
+.win {
+  background: var(--frame);
+  border: 2px solid;
+  border-color: var(--frame-light) var(--frame-dark) var(--frame-dark) var(--frame-light);
+  padding: 0 6px 6px;
+  box-shadow: 0 0 0 1px #000;
+}
+.win + .win { border-top-width: 1px; }
+.titlebar {
+  display: flex; align-items: center; gap: 6px;
+  height: 18px; margin: 0 -4px 6px; padding: 0 4px;
+  user-select: none;
+}
+.grip {
+  flex: 1; height: 8px;
+  background: repeating-linear-gradient(to bottom, var(--title-a) 0 1px, var(--title-b) 1px 2px, transparent 2px 3px);
+}
+.title {
+  color: var(--title-text); font-weight: bold; letter-spacing: 3px; font-size: 10px;
+  text-shadow: 1px 1px 0 #000;
+}
+.tb-buttons { display: flex; gap: 2px; }
+.tb-buttons i {
+  width: 9px; height: 9px; background: var(--button);
+  border: 1px solid; border-color: var(--frame-light) var(--frame-dark) var(--frame-dark) var(--frame-light);
+}
+
+/* LCD surfaces */
+.lcd {
+  background: var(--lcd-bg); color: var(--lcd-fg);
+  border: 1px solid; border-color: var(--frame-dark) var(--frame-light) var(--frame-light) var(--frame-dark);
+}
+.mini { font-size: 9px; letter-spacing: 1px; color: var(--lcd-fg); opacity: .75; text-transform: uppercase; }
+
+/* Main window */
+.main-body { display: grid; grid-template-columns: minmax(0, 190px) minmax(0, 1fr); gap: 6px; }
+.lcd-left { padding: 4px; display: flex; flex-direction: column; gap: 3px; }
+.lcd-top { display: flex; align-items: center; gap: 6px; }
+.state { font-size: 14px; width: 16px; text-align: center; color: var(--lcd-fg); }
+.state.blink { animation: blink 1s steps(1) infinite; }
+.timer { width: 100%; height: 34px; display: block; }
+.vis { width: 100%; height: 52px; display: block; cursor: pointer; image-rendering: pixelated; }
+.info { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+.marquee {
+  height: 20px; padding: 2px 5px; white-space: pre; overflow: hidden;
+  font-size: 12px; letter-spacing: 1px; text-shadow: 0 0 4px var(--lcd-fg);
+}
+.row { display: flex; gap: 4px; align-items: center; flex-wrap: wrap; }
+.box { padding: 1px 4px; display: inline-flex; align-items: baseline; gap: 2px; min-width: 52px; justify-content: flex-end; }
+.box b { font-size: 13px; font-weight: normal; text-shadow: 0 0 4px var(--lcd-fg); }
+.box small { font-size: 8px; opacity: .8; }
+.lamps { display: inline-flex; gap: 6px; margin-left: auto; }
+.lamp { font-size: 9px; font-weight: bold; letter-spacing: 1px; color: var(--lamp-off); }
+.lamp.on { color: var(--lamp-on); text-shadow: 0 0 6px var(--lamp-on); }
+.sliders { display: flex; flex-direction: column; gap: 5px; }
+.slider-row { display: grid; grid-template-columns: 46px 1fr 50px; align-items: center; gap: 6px; }
+.label { font-size: 9px; letter-spacing: 1px; color: var(--button-text); }
+.value { font-size: 9px; text-align: right; color: var(--button-text); }
+
+/* Tracks and knobs (volume, balance, seek) */
+.track {
+  --v: 0;
+  position: relative; height: 10px; display: block;
+  border: 1px solid; border-color: var(--frame-dark) var(--frame-light) var(--frame-light) var(--frame-dark);
+  background: linear-gradient(to right, var(--vis-low), var(--vis-mid) 60%, var(--vis-high));
+  background-size: calc(var(--v) * 100%) 100%; background-repeat: no-repeat;
+  background-color: var(--frame-dark);
+}
+.track.bal { background: var(--frame-dark); }
+.track.bal::before {
+  content: ""; position: absolute; top: 3px; bottom: 3px; left: 50%; width: 1px; background: var(--frame-light);
+}
+.knob {
+  position: absolute; top: -2px; width: 14px; height: 12px;
+  left: calc(var(--v) * (100% - 14px));
+  background: linear-gradient(to bottom, #e6e6ee, #8a8aa0);
+  border: 1px solid; border-color: #fff #333 #333 #fff;
+  transition: left .4s ease-out;
+}
+.seek-row { margin-top: 6px; }
+.track.seek { height: 8px; background-image: none; background-color: var(--frame-dark); }
+.track.seek .knob { width: 26px; height: 10px; left: calc(var(--v) * (100% - 26px)); }
+.seek-text { margin-top: 3px; color: var(--button-text); opacity: .9; }
+
+/* Buttons */
+.controls { display: flex; gap: 2px; align-items: center; margin-top: 6px; flex-wrap: wrap; }
+button {
+  font: inherit; font-size: 12px; color: var(--button-text);
+  background: var(--button); min-width: 26px; height: 20px; padding: 0 5px; cursor: pointer;
+  border: 1px solid; border-color: var(--frame-light) var(--frame-dark) var(--frame-dark) var(--frame-light);
+}
+button:active, button.down { border-color: var(--frame-dark) var(--frame-light) var(--frame-light) var(--frame-dark); }
+button:focus-visible { outline: 1px dotted var(--lcd-fg); outline-offset: 1px; }
+.gpu-select { margin-left: auto; padding: 2px 6px; font-size: 10px; letter-spacing: 1px; }
+
+/* Equalizer */
+.eq-top { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+.eq-curve { flex: 1; height: 22px; min-width: 0; display: block; }
+.eq-bands { display: flex; gap: 6px; align-items: stretch; }
+.eq-group { display: flex; flex-direction: column; gap: 3px; flex: 1; min-width: 0; }
+.eq-group.preamp { flex: 0 0 34px; border-right: 1px solid var(--frame-dark); padding-right: 6px; }
+.eq-sliders { display: flex; justify-content: space-around; gap: 2px; }
+.band { display: flex; flex-direction: column; align-items: center; gap: 2px; width: 30px; }
+.band .vtrack {
+  --v: 0;
+  position: relative; width: 10px; height: 80px;
+  border: 1px solid; border-color: var(--frame-dark) var(--frame-light) var(--frame-light) var(--frame-dark);
+  background: var(--frame-dark);
+}
+.band .vtrack::before {
+  content: ""; position: absolute; left: 1px; right: 1px; bottom: 0;
+  height: calc(var(--v) * 100%);
+  background: linear-gradient(to top, var(--vis-low), var(--vis-mid) 60%, var(--vis-high));
+  background-size: 100% 78px; background-position: bottom;
+  transition: height .4s ease-out;
+}
+.band .vknob {
+  position: absolute; left: -3px; width: 14px; height: 9px;
+  bottom: calc(var(--v) * (100% - 9px));
+  background: linear-gradient(to bottom, #e6e6ee, #8a8aa0);
+  border: 1px solid; border-color: #fff #333 #333 #fff;
+  transition: bottom .4s ease-out;
+}
+.band .bname { font-size: 8px; letter-spacing: 0; color: var(--button-text); }
+.band .bvalue { font-size: 9px; color: var(--lcd-fg); background: var(--lcd-bg); padding: 0 2px; min-width: 28px; text-align: center; }
+.eq-heading { font-size: 9px; letter-spacing: 1px; color: var(--title-text); text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.eq-service { font-size: 8px; color: var(--button-text); opacity: .8; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-height: 10px; }
+.eq-group.selected .eq-heading { color: var(--lcd-fg); text-shadow: 0 0 4px var(--lcd-fg); }
+
+/* Playlist */
+.playlist {
+  list-style: none; margin: 0; padding: 3px 0; min-height: 96px;
+  background: var(--list-bg); color: var(--list-fg);
+  border: 1px solid; border-color: var(--frame-dark) var(--frame-light) var(--frame-light) var(--frame-dark);
+}
+.playlist li { display: flex; gap: 8px; padding: 1px 5px; white-space: nowrap; }
+.playlist li .nr { flex: 0 0 auto; }
+.playlist li .name { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.playlist li .right { flex: 0 0 auto; text-align: right; }
+.playlist li.active { background: var(--list-sel-bg); color: var(--list-sel-fg); }
+.playlist li.instance { color: var(--list-dim); font-size: 9px; letter-spacing: 1px; margin-top: 3px; }
+.playlist li.instance:first-child { margin-top: 0; }
+.playlist li.instance.down { color: var(--vis-high); }
+.playlist li.empty { color: var(--list-dim); }
+.playlist-foot { display: flex; gap: 2px; align-items: center; margin-top: 6px; flex-wrap: wrap; }
+.playlist-foot button { font-size: 9px; letter-spacing: 1px; }
+.summary { margin-left: auto; padding: 2px 6px; font-size: 10px; }
+
+.footnote { color: #fff; opacity: .7; font-size: 10px; text-align: center; margin: 12px 0 0; text-shadow: 1px 1px 0 #000; }
+
+@keyframes blink { 50% { opacity: 0; } }
+
+@media (max-width: 480px) {
+  .main-body { grid-template-columns: 1fr; }
+  .band { width: 22px; }
+  .band .bname { font-size: 7px; }
+  .eq-bands { gap: 3px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .knob, .band .vknob, .band .vtrack::before { transition: none; }
+  .state.blink { animation: none; }
+}

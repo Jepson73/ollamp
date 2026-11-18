@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ollamp</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' fill='%23000'/%3E%3Crect x='2' y='9' width='2' height='5' fill='%2319c31b'/%3E%3Crect x='5' y='5' width='2' height='9' fill='%23d6d61b'/%3E%3Crect x='8' y='2' width='2' height='12' fill='%23e8371b'/%3E%3Crect x='11' y='7' width='2' height='7' fill='%2319c31b'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="/ollamp.css">
+<script src="/ollamp.js" defer></script>
+</head>
+<body>
+<main class="stack">
+
+  <!-- Main window -->
+  <section class="win" aria-label="Ollamp">
+    <header class="titlebar"><span class="grip"></span><span class="title">OLLAMP</span><span class="grip"></span><span class="tb-buttons" aria-hidden="true"><i></i><i></i><i></i></span></header>
+    <div class="main-body">
+      <div class="lcd lcd-left">
+        <div class="lcd-top">
+          <span id="state" class="state" title="▶ GPU busy · ‖ paused or idle · ■ nothing loaded">■</span>
+          <canvas id="timer" class="timer" title="How long the GPUs have been busy without a break"></canvas>
+        </div>
+        <canvas id="vis" class="vis" title="Click to change visualization"></canvas>
+        <div id="vis-mode" class="mini">SPECTRUM · GPU LOAD</div>
+      </div>
+      <div class="info">
+        <div class="lcd marquee" id="marquee" aria-live="off">OLLAMP</div>
+        <div class="row">
+          <span class="lcd box"><b id="watts">---</b><small>W</small></span>
+          <span class="lcd box"><b id="temp">--</b><small>°C</small></span>
+          <span class="lcd box"><b id="mhz">----</b><small>MHz</small></span>
+          <span class="lamps"><span class="lamp" id="lamp1">1 GPU</span><span class="lamp" id="lamp2">2+ GPU</span></span>
+        </div>
+        <div class="sliders">
+          <div class="slider-row"><span class="label">VRAM</span><span class="track" id="vol"><span class="knob"></span></span><span class="value" id="vol-txt">–</span></div>
+          <div class="slider-row"><span class="label">0 ◂▸ 1</span><span class="track bal" id="bal"><span class="knob"></span></span><span class="value" id="bal-txt">–</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="seek-row">
+      <span class="track seek" id="seek"><span class="knob"></span></span>
+    </div>
+    <div class="seek-text mini" id="seek-txt">KEEP-ALIVE: –</div>
+    <div class="controls">
+      <button type="button" id="b-prev" title="Previous GPU (z)">⏮</button>
+      <button type="button" id="b-play" title="Resume updates (x)">▶</button>
+      <button type="button" id="b-pause" title="Pause updates (c)">⏸</button>
+      <button type="button" id="b-stop" title="Reset timer and history (v)">⏹</button>
+      <button type="button" id="b-next" title="Next GPU (b)">⏭</button>
+      <span class="gpu-select lcd" id="gpu-select">ALL GPUS</span>
+    </div>
+  </section>
+
+  <!-- Equalizer -->
+  <section class="win" aria-label="GPU equalizer">
+    <header class="titlebar"><span class="grip"></span><span class="title">OLLAMP EQUALIZER</span><span class="grip"></span><span class="tb-buttons" aria-hidden="true"><i></i><i></i></span></header>
+    <div class="eq-top">
+      <span class="lamp" id="lamp-on">ON</span>
+      <span class="lamp" id="lamp-auto">AUTO</span>
+      <canvas id="eq-curve" class="lcd eq-curve"></canvas>
+    </div>
+    <div class="eq-bands" id="eq-bands"></div>
+  </section>
+
+  <!-- Playlist -->
+  <section class="win" aria-label="Loaded models">
+    <header class="titlebar"><span class="grip"></span><span class="title">OLLAMP PLAYLIST</span><span class="grip"></span><span class="tb-buttons" aria-hidden="true"><i></i><i></i></span></header>
+    <ol class="playlist" id="playlist"><li class="empty">Waiting for data…</li></ol>
+    <footer class="playlist-foot">
+      <button type="button" id="b-gpu">GPU</button>
+      <button type="button" id="b-vis">VIS</button>
+      <span class="lcd summary" id="summary">–</span>
+    </footer>
+  </section>
+
+  <p class="footnote">Ollamp reads nvidia-smi and /api/ps once a second. It never changes anything in Ollama.</p>
+</main>
+</body>
+</html>
