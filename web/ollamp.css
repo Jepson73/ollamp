@@ -94,6 +94,7 @@ body {
 .lamp { font-size: 9px; font-weight: bold; letter-spacing: 1px; color: var(--lamp-off); }
 .lamp.on { color: var(--lamp-on); text-shadow: 0 0 6px var(--lamp-on); }
 .sliders { display: flex; flex-direction: column; gap: 5px; }
+.slider-row[hidden] { display: none; }
 .slider-row { display: grid; grid-template-columns: 46px 1fr 50px; align-items: center; gap: 6px; }
 .label { font-size: 9px; letter-spacing: 1px; color: var(--button-text); }
 .value { font-size: 9px; text-align: right; color: var(--button-text); }
@@ -138,10 +139,11 @@ button:focus-visible { outline: 1px dotted var(--lcd-fg); outline-offset: 1px; }
 .eq-top { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
 .eq-curve { flex: 1; height: 22px; min-width: 0; display: block; }
 .eq-bands { display: flex; gap: 6px; align-items: stretch; }
-.eq-group { display: flex; flex-direction: column; gap: 3px; flex: 1; min-width: 0; }
+.eq-gpus { display: flex; flex-wrap: wrap; gap: 8px 6px; flex: 1; min-width: 0; }
+.eq-group { display: flex; flex-direction: column; gap: 3px; flex: 1 1 150px; min-width: 0; }
 .eq-group.preamp { flex: 0 0 34px; border-right: 1px solid var(--frame-dark); padding-right: 6px; }
 .eq-sliders { display: flex; justify-content: space-around; gap: 2px; }
-.band { display: flex; flex-direction: column; align-items: center; gap: 2px; width: 30px; }
+.band { display: flex; flex-direction: column; align-items: center; gap: 2px; width: 28px; }
 .band .vtrack {
   --v: 0;
   position: relative; width: 10px; height: 80px;
@@ -193,7 +195,8 @@ button:focus-visible { outline: 1px dotted var(--lcd-fg); outline-offset: 1px; }
 
 @media (max-width: 480px) {
   .main-body { grid-template-columns: 1fr; }
-  .band { width: 22px; }
+  .band { width: 24px; }
+  .eq-group { flex-basis: 130px; }
   .band .bname { font-size: 7px; }
   .eq-bands { gap: 3px; }
 }

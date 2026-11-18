@@ -4,7 +4,7 @@ Ollamp: a small local status page for Ollama and NVIDIA GPUs, in classic Winamp 
 
 Read-only: it runs nvidia-smi and calls each Ollama instance's /api/ps and /api/version.
 It never changes anything in Ollama, makes no requests outside your machine and uses only
-the Python standard library.
+the Python standard library. Runs on Linux and Windows; GPU data needs an NVIDIA card.
 
   python3 ollamp.py                          # http://127.0.0.1:8088, this machine only
   python3 ollamp.py --bind 0.0.0.0           # reachable from your local network
@@ -53,21 +53,20 @@ def run(argv):
     return [r for r in out.stdout.strip().splitlines() if r.strip()]
 
 
-def process_info(pid):
-    """Systemd service (from /proc/<pid>/cgroup) and process name for a PID."""
-    service = comm = None
+def service_for_pid(pid):
+    """Systemd service of a PID, from /proc/<pid>/cgroup. Linux only; None elsewhere."""
     try:
         with open(f"/proc/{int(pid)}/cgroup", encoding="utf-8") as f:
             m = re.search(r"/([^/\s]+)\.service", f.read())
-            service = m.group(1) if m else None
+        return m.group(1) if m else None
     except (OSError, ValueError):
-        pass
-    try:
-        with open(f"/proc/{int(pid)}/comm", encoding="utf-8") as f:
-            comm = f.read().strip()
-    except (OSError, ValueError):
-        pass
-    return service, comm
+        return None
+
+
+def short_name(path):
+    """'/usr/local/bin/ollama' or 'C:\\...\\ollama.exe' -> 'ollama'."""
+    name = re.split(r"[\\/]", path or "")[-1]
+    return re.sub(r"\.exe$", "", name, flags=re.I) or None
 
 
 def read_gpus():
@@ -88,12 +87,15 @@ def read_gpus():
         })
     try:
         by_uuid = {g["uuid"]: g for g in gpus}
-        for row in run(["nvidia-smi", "--query-compute-apps=gpu_uuid,pid,used_memory",
+        for row in run(["nvidia-smi", "--query-compute-apps=gpu_uuid,pid,used_memory,process_name",
                         "--format=csv,noheader,nounits"]):
-            uuid, pid, mb = [x.strip() for x in row.split(",")[:3]]
+            parts = [x.strip() for x in row.split(",")]
+            if len(parts) < 4:
+                continue
+            uuid, pid, mb, path = parts[0], parts[1], parts[2], ",".join(parts[3:])
             if uuid in by_uuid:
-                service, comm = process_info(pid)
-                by_uuid[uuid]["processes"].append({"service": service, "comm": comm, "vram_mb": num(mb)})
+                by_uuid[uuid]["processes"].append({
+                    "service": service_for_pid(pid), "comm": short_name(path), "vram_mb": num(mb)})
     except (RuntimeError, ValueError):
         pass  # the process list is a bonus
     return gpus
@@ -160,6 +162,8 @@ class Collector:
         out = {"now": now, "gpus": [], "gpu_error": None, "instances": []}
         try:
             out["gpus"] = read_gpus()
+        except FileNotFoundError:
+            out["gpu_error"] = "nvidia-smi not found (no NVIDIA GPU or driver)"
         except (OSError, RuntimeError, subprocess.SubprocessError) as e:
             out["gpu_error"] = str(e)[:200] or type(e).__name__
         threads, results = [], [None] * len(self.instances)

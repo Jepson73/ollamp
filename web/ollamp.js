@@ -130,7 +130,8 @@
 
     // balance between GPU 0 and 1
     const ag = allGpus();
-    if (ag.length >= 2 && ag[0].vram_total_mb && ag[1].vram_total_mb) {
+    $("bal-row").hidden = ag.length !== 2;
+    if (ag.length === 2 && ag[0].vram_total_mb && ag[1].vram_total_mb) {
       const p0 = ag[0].vram_mb / ag[0].vram_total_mb, p1 = ag[1].vram_mb / ag[1].vram_total_mb;
       $("bal").style.setProperty("--v", clamp(0.5 + (p1 - p0) / 2).toFixed(3));
       $("bal-txt").textContent = `${Math.round(p0 * 100)}|${Math.round(p1 * 100)}%`;
@@ -193,6 +194,7 @@
     pre.append(ps);
     groups.push(pre);
     st.eqValues = [];
+    const gpuBox = el("div", "eq-gpus");
     for (const g of ag) {
       const grp = el("div", "eq-group" + (st.gpu === g.index ? " selected" : ""));
       const short = (g.name || "GPU").replace(/^NVIDIA\s+/i, "").replace(/GeForce\s+/i, "");
@@ -208,13 +210,14 @@
       ];
       for (const [n, v, t] of values) { row.append(band(n, v, t)); st.eqValues.push(clamp(v)); }
       grp.append(row);
-      groups.push(grp);
+      gpuBox.append(grp);
     }
     if (!ag.length) {
       const grp = el("div", "eq-group");
       grp.append(el("div", "eq-heading", st.data && st.data.gpu_error ? "nvidia-smi failed" : "no GPUs"));
-      groups.push(grp);
+      gpuBox.append(grp);
     }
+    groups.push(gpuBox);
     $("eq-bands").replaceChildren(...groups);
   }
 
@@ -338,7 +341,7 @@
     } else {
       const frac = clamp((now - st.sampleTime) / 1000);
       const n = 60, dx = w / (n - 1);
-      const palette = [c.low, c.high, c.mid, c.peak];
+      const palette = [c.low, c.high, c.mid, c.peak, c.fg];
       gpus.forEach((g) => {
         const hist = (st.hist[g.index] || { watts: [] }).watts.slice(-(n + 1));
         if (hist.length < 2) return;

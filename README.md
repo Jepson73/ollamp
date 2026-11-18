@@ -21,7 +21,30 @@ Winamp's keys work too: z x c v b.
 - It never changes anything in Ollama and makes no requests outside your machine. It only needs Python 3.8+, with no packages to install.
 - It has no tokens-per-second figure. Ollama doesn't expose one that a page can poll. For that, use
   `ollama run <model> --verbose` or the `eval_count`/`eval_duration` fields in the API response.
-- Needs Linux and an NVIDIA GPU with `nvidia-smi`. Without one, the Ollama parts still work.
+- Any number of NVIDIA GPUs: the equalizer adds a group per card and wraps to new rows.
+  The balance slider only shows with exactly two cards.
+
+## Platforms and limitations
+
+I built and use Ollamp on **Linux with NVIDIA GPUs**. That is the only setup tested on real hardware.
+
+| | Ollama (playlist, keep-alive) | GPU data | Which instance runs on which GPU |
+|---|---|---|---|
+| Linux + NVIDIA | yes, tested | yes, tested | yes, by systemd service or process name |
+| Windows + NVIDIA | should work, untested | should work via `nvidia-smi`, untested | single instance only (by process name) |
+| macOS (Apple Silicon) | should work, untested | no | no |
+| AMD or Intel GPUs | should work, untested | no | no |
+
+Known limitations:
+
+- **GPU data comes only from `nvidia-smi`.** Without it the equalizer and visualizer stay empty and
+  the page shows "nvidia-smi not found". The Ollama parts still work.
+- **Matching instances to GPUs with several instances needs systemd.** It reads
+  `/proc/<pid>/cgroup`, which only exists on Linux.
+- **The background service is systemd-only.** On Windows, run `python ollamp.py` yourself or start it
+  from Task Scheduler; on macOS, run it yourself or write a launchd agent.
+- **No tokens per second**, as explained above.
+- **No login.** Meant for your own machine or local network only.
 
 ## Try it
 
@@ -89,14 +112,6 @@ To keep it on the machine itself, change `--bind 0.0.0.0` to `--bind 127.0.0.1` 
 - **No instance names under the GPUs:** some drivers and containers hide the process list from
   `nvidia-smi`. Everything else still works.
 
-## License
-
-MIT, see [LICENSE](LICENSE).
-
-Ollamp is an independent project. It is not affiliated with or endorsed by Winamp or Ollama.
-The look is drawn from scratch in CSS and canvas, inspired by classic media players; it contains
-no Winamp skins, graphics, logos or code.
-
 ## Uninstall
 
 ```bash
@@ -105,3 +120,36 @@ sudo rm /etc/systemd/system/ollamp.service
 sudo rm -rf /opt/ollamp
 sudo systemctl daemon-reload
 ```
+
+## Contributing
+
+Pull requests are welcome, especially for the setups I can't test: **macOS, Windows, AMD and Intel**.
+
+GPU support lives in one function in `ollamp.py`: `read_gpus()`. A new backend (for example
+`amd-smi`/`rocm-smi` for AMD, `xpu-smi` for Intel, or something for Apple Silicon) only needs to
+return a list of dicts with these keys. Use `None` for anything the platform can't report, and the
+page shows "–":
+
+| Key | Meaning |
+|---|---|
+| `index`, `uuid`, `name` | card number, a unique id, model name |
+| `util`, `mem_bus` | GPU load and memory-bus load, in % |
+| `vram_mb`, `vram_total_mb` | VRAM used and total, in MiB |
+| `watts`, `watts_max` | power draw and power limit |
+| `temp`, `clock`, `clock_max`, `fan`, `pstate` | °C, MHz, MHz, %, performance state |
+| `processes` | list of `{"service", "comm", "vram_mb"}` for processes on the card (may be empty) |
+
+A few ground rules that keep it easy to install and safe to run:
+
+- **Standard library only.** No pip packages.
+- **Read-only.** Ollamp must never change anything in Ollama or on the GPU.
+- **No requests outside the machine** and no external scripts or fonts in the page.
+- Please say in the PR which hardware and OS you tested on.
+
+## License
+
+MIT, see [LICENSE](LICENSE).
+
+Ollamp is an independent project. It is not affiliated with or endorsed by Winamp or Ollama.
+The look is drawn from scratch in CSS and canvas, inspired by classic media players; it contains
+no Winamp skins, graphics, logos or code.
