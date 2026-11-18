@@ -1,19 +1,21 @@
 # Ollamp
 
-A local status page for Ollama and NVIDIA GPUs, styled like classic Winamp.
+A local status page for Ollama and NVIDIA GPUs, built as a modular synth rack.
 
 ![Ollamp with two GPUs and three Ollama instances](docs/preview.png)
 
-- **Main window:**
-  - an LCD timer for how long the GPUs have been busy without a break. It blinks with the last time when they go idle.
-  - a spectrum analyzer of GPU load. Click it to switch to an oscilloscope of power draw, or to turn it off.
-  - watts, temperature and clock speed
-  - VRAM as the volume slider, the VRAM split between GPU 0 and 1 as the balance slider, and the time left on keep-alive as the seek bar
-- **Equalizer:** load, memory bus, VRAM, watts and temperature per GPU, plus which Ollama instance runs on each card.
-- **Playlist:** the loaded models per instance, with context length, share on GPU, size and keep-alive left. Models whose GPUs are busy right now are highlighted, like the track that's playing.
+- **CLK module:** a red LED timer for how long the GPUs have been busy without a break (it blinks with
+  the last time when they go idle), status LEDs, and knobs for total power draw and VRAM.
+- **SCOPE module:** a phosphor screen with GPU load as bars, or power draw as traces. One color per GPU.
+- **One GPU module per card:** LED meters for load, memory bus, VRAM, watts and temperature, plus knobs
+  for clock speed and fan.
+- **One module per Ollama instance:** the loaded models with context length, share on GPU, size and a
+  keep-alive countdown. A model's LED lights up while its GPUs are working.
+- **Patch cables** run from each instance to the GPUs it is using. They pulse while the GPU is busy.
 
-Buttons: ⏮/⏭ switch GPU (all, GPU 0, GPU 1, …), ⏸ pauses, ⏹ resets the timer and history.
-Winamp's keys work too: z x c v b.
+Buttons: HOLD pauses updates, RESET clears the timer and history, the GPU button picks which card the
+timer and scope follow, MODE switches the scope. Keys: space, r, g and v. Clicking the scope also
+switches mode.
 
 ## What it does and doesn't do
 
@@ -150,6 +152,5 @@ A few ground rules that keep it easy to install and safe to run:
 
 MIT, see [LICENSE](LICENSE).
 
-Ollamp is an independent project. It is not affiliated with or endorsed by Winamp or Ollama.
-The look is drawn from scratch in CSS and canvas, inspired by classic media players; it contains
-no Winamp skins, graphics, logos or code.
+Ollamp is an independent project and is not affiliated with or endorsed by Ollama or NVIDIA.
+The design is drawn from scratch in CSS, canvas and SVG.

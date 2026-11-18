@@ -1,5 +1,5 @@
 [Unit]
-Description=Ollamp - Winamp-style status page for Ollama and NVIDIA GPUs
+Description=Ollamp - modular-synth-style status page for Ollama and NVIDIA GPUs
 After=network-online.target
 Wants=network-online.target
 

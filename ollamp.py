@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Ollamp: a small local status page for Ollama and NVIDIA GPUs, in classic Winamp style.
+Ollamp: a small local status page for Ollama and NVIDIA GPUs, built as a modular synth rack.
 
 Read-only: it runs nvidia-smi and calls each Ollama instance's /api/ps and /api/version.
 It never changes anything in Ollama, makes no requests outside your machine and uses only
@@ -221,7 +221,7 @@ def make_handler(collector):
 
 
 def main():
-    p = argparse.ArgumentParser(description="Ollamp: a Winamp-style status page for Ollama and NVIDIA GPUs.")
+    p = argparse.ArgumentParser(description="Ollamp: a modular-synth-style status page for Ollama and NVIDIA GPUs.")
     p.add_argument("--bind", default="127.0.0.1", help="address to listen on (0.0.0.0 = whole network)")
     p.add_argument("--port", type=int, default=8088)
     p.add_argument("--ollama-host", default="127.0.0.1", help="where the Ollama instances are reached")
