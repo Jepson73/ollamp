@@ -303,7 +303,7 @@
     const mk = (tag, attrs) => { const e = document.createElementNS(SVG, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); return e; };
     for (const i of instances()) {
       const m = st.instMods.get(i.name);
-      if (!m || !i.up) continue;
+      if (!m || !i.up || !(i.models || []).length) continue;   // a cable only while a model is loaded
       const color = css(m.color);
       const [x1, y1] = centre(m.jack);
       const gpus = gpusForInstance(i.name);
@@ -445,6 +445,15 @@
     render();
   }
   function switchMode() { st.mode = (st.mode + 1) % MODES.length; save("mode", st.mode); render(); }
+  function setMono(on) {
+    st.mono = on;
+    if (on) document.documentElement.dataset.theme = "mono";
+    else delete document.documentElement.dataset.theme;
+    $("led-mono").classList.toggle("on", on);
+    save("mono", on ? "1" : "");
+    readColors();
+    render();
+  }
   function hold() { st.paused = !st.paused; render(); }
   function reset() {
     st.hist = {}; st.bars.clear(); st.peaks.clear(); st.maxLeft = {};
@@ -456,6 +465,7 @@
   $("b-reset").addEventListener("click", reset);
   $("b-gpu").addEventListener("click", switchGpu);
   $("b-vis").addEventListener("click", switchMode);
+  $("b-mono").addEventListener("click", () => setMono(!st.mono));
   $("vis").addEventListener("click", switchMode);
   document.addEventListener("keydown", (e) => {
     if (e.ctrlKey || e.metaKey || e.altKey || e.target.closest("button")) return;
@@ -464,6 +474,7 @@
     else if (k === "r") reset();
     else if (k === "g") switchGpu();
     else if (k === "v") switchMode();
+    else if (k === "m") setMono(!st.mono);
   });
   if (window.ResizeObserver) new ResizeObserver(() => drawCables(new Set(allGpus().filter(busy).map((g) => g.index)))).observe($("rack"));
 
@@ -472,6 +483,7 @@
   if (savedMode >= 0 && savedMode < MODES.length) st.mode = savedMode;
   const savedGpu = load("gpu");
   if (savedGpu) st.gpu = Number(savedGpu);
+  if (load("mono") === "1") setMono(true);
   readColors();
   render();
   fetchStatus();

@@ -36,7 +36,51 @@
 
   --knob-cap-a: #3b3d45;
   --knob-cap-b: #121318;
+  --no-signal: #7a1010;
+  --led-green: var(--green);
+  --led-yellow: var(--yellow);
+  --led-orange: var(--orange);
+  --led-red: var(--red);
+  --led-cyan: var(--cyan);
+  --led-pink: var(--pink);
+  --led-unlit: var(--led-off);
 }
+
+/* Monochrome: same layout, greys only. Lit LEDs, meters and cables are told apart by brightness. */
+:root[data-theme="mono"] {
+  --wall: #101010;
+  --wall-2: #1c1c1c;
+  --clk-panel: #141414;
+  --clk-legend: #e6e6e6;
+  --scope-panel: #b8b8b8;
+  --gpu-panel: #2c2c2e;
+  --gpu-legend: #ffffff;
+  --gpu-text: #d6d6d6;
+  --inst-panel: #c9c9c9;
+  --inst-legend: #111111;
+  --inst-dim: #555555;
+  --phosphor-dim: #232323;
+  --screen-bg: #080808;
+  --green: #9a9a9a;
+  --yellow: #d4d4d4;
+  --orange: #e6e6e6;
+  --red: #ffffff;
+  --cyan: #ffffff;
+  --pink: #b4b4b4;
+  --no-signal: #333333;
+  /* LEDs stay LEDs: one retro green, top of the meters a little brighter */
+  --led-green: #33e04f;
+  --led-yellow: #5cff72;
+  --led-orange: #33e04f;
+  --led-red: #a6ffb2;
+  --led-cyan: #33e04f;
+  --led-pink: #33e04f;
+  --led-unlit: #142417;
+  --seg-on: #3dff5c;
+  --seg-off: #0d2611;
+  --seg-bg: #040b05;
+}
+:root[data-theme="mono"] .mod-inst .led.on { box-shadow: 0 0 6px var(--c), 0 0 0 1px rgba(0,0,0,.35); }
 
 * { box-sizing: border-box; }
 html { color-scheme: dark; }
@@ -105,16 +149,16 @@ body {
 /* ---------- LEDs ---------- */
 .led {
   display: inline-block; width: 8px; height: 8px; border-radius: 50%;
-  background: var(--led-off); box-shadow: inset 0 1px 1px rgba(0,0,0,.6);
+  background: var(--led-unlit); box-shadow: inset 0 1px 1px rgba(0,0,0,.6);
   flex: 0 0 auto;
 }
-.led.on { --c: var(--green); background: var(--c); box-shadow: 0 0 6px var(--c), 0 0 2px #fff inset; }
-.led.green { --c: var(--green); }
-.led.yellow { --c: var(--yellow); }
-.led.orange { --c: var(--orange); }
-.led.red { --c: var(--red); }
-.led.cyan { --c: var(--cyan); }
-.led.pink { --c: var(--pink); }
+.led.on { --c: var(--led-green); background: var(--c); box-shadow: 0 0 6px var(--c), 0 0 2px #fff inset; }
+.led.green { --c: var(--led-green); }
+.led.yellow { --c: var(--led-yellow); }
+.led.orange { --c: var(--led-orange); }
+.led.red { --c: var(--led-red); }
+.led.cyan { --c: var(--led-cyan); }
+.led.pink { --c: var(--led-pink); }
 .led.on.blink { animation: blink .8s steps(1) infinite; }
 .leds { display: grid; grid-template-columns: 1fr 1fr; gap: 5px 8px; }
 .led-box { display: flex; align-items: center; gap: 5px; font-size: 9px; letter-spacing: 1px; }
@@ -156,6 +200,7 @@ body {
 
 /* ---------- buttons ---------- */
 .buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: auto; }
+.buttons .wide { grid-column: 1 / -1; }
 button {
   font: inherit; font-size: 9px; letter-spacing: 1px; font-weight: bold;
   display: flex; align-items: center; justify-content: center; gap: 5px;
@@ -204,11 +249,11 @@ button:focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; }
 .ladders { display: flex; justify-content: space-between; gap: 3px; }
 .ladder-box { display: flex; flex-direction: column; align-items: center; gap: 3px; flex: 1; min-width: 0; }
 .ladder { display: flex; flex-direction: column-reverse; gap: 2px; padding: 3px; background: rgba(0,0,0,.35); border-radius: 2px; }
-.ladder i { display: block; width: 14px; height: 6px; border-radius: 1px; background: var(--led-off); }
+.ladder i { display: block; width: 14px; height: 6px; border-radius: 1px; background: var(--led-unlit); }
 .ladder i.on { background: var(--c); box-shadow: 0 0 5px var(--c); }
-.ladder i:nth-child(-n+6) { --c: var(--green); }
-.ladder i:nth-child(n+7):nth-child(-n+8) { --c: var(--yellow); }
-.ladder i:nth-child(n+9) { --c: var(--red); }
+.ladder i:nth-child(-n+6) { --c: var(--led-green); }
+.ladder i:nth-child(n+7):nth-child(-n+8) { --c: var(--led-yellow); }
+.ladder i:nth-child(n+9) { --c: var(--led-red); }
 .lname { font-size: 7.5px; letter-spacing: 1px; font-weight: bold; color: var(--gpu-legend); }
 .lvalue { font-size: 8.5px; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .mod-gpu .knob { --accent: var(--cyan); }
@@ -228,7 +273,7 @@ button:focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; }
 .keep-bar i { flex: 1; height: 5px; background: rgba(0,0,0,.2); border-radius: 1px; }
 .keep-bar i.on { background: #1a1408; }
 .keep-time { font-size: 8.5px; font-weight: bold; font-variant-numeric: tabular-nums; }
-.no-signal { text-align: center; font-weight: bold; letter-spacing: 2px; font-size: 10px; padding: 10px 0; color: #7a1010; }
+.no-signal { text-align: center; font-weight: bold; letter-spacing: 2px; font-size: 10px; padding: 10px 0; color: var(--no-signal); }
 .no-model { text-align: center; font-weight: bold; letter-spacing: 2px; font-size: 9px; padding: 10px 0; color: var(--inst-dim); }
 .mod-inst .jack-label { color: var(--inst-legend); }
 

@@ -14,8 +14,9 @@ A local status page for Ollama and NVIDIA GPUs, built as a modular synth rack.
 - **Patch cables** run from each instance to the GPUs it is using. They pulse while the GPU is busy.
 
 Buttons: HOLD pauses updates, RESET clears the timer and history, the GPU button picks which card the
-timer and scope follow, MODE switches the scope. Keys: space, r, g and v. Clicking the scope also
-switches mode.
+timer and scope follow, MODE switches the scope, and MONO turns all colors into greys. Keys: space,
+r, g, v and m. Clicking the scope also switches mode. MONO and the scope mode are remembered in the
+browser.
 
 ## What it does and doesn't do
 
